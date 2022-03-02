@@ -1,0 +1,523 @@
+{
+  "Resources": {
+    "vtlapi061587B8": {
+      "Type": "AWS::AppSync::GraphQLApi",
+      "Properties": {
+        "AuthenticationType": "API_KEY",
+        "Name": "VTl_api",
+        "XrayEnabled": true
+      },
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/Resource"
+      }
+    },
+    "vtlapiSchema3D4B82EF": {
+      "Type": "AWS::AppSync::GraphQLSchema",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "Definition": "type Note {\n  id: ID!\n  title: String!\n}\n\ntype Query {\n  notes: [Note!]\n}\n\ntype Mutation {\n  createNote(title: String!): Note!\n  deleteNote(id: String!): String!\n  updateNote(id: String!, title: String!): Note!\n}\n"
+      },
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/Schema"
+      }
+    },
+    "vtlapiDefaultApiKey297D6C35": {
+      "Type": "AWS::AppSync::ApiKey",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "Expires": 1677783309
+      },
+      "DependsOn": [
+        "vtlapiSchema3D4B82EF"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DefaultApiKey"
+      }
+    },
+    "vtlapiDynamoDataSourceServiceRole79448EEA": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "appsync.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/ServiceRole/Resource"
+      }
+    },
+    "vtlapiDynamoDataSourceServiceRoleDefaultPolicy683A31F8": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DynamoTable163882862",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Ref": "AWS::NoValue"
+                }
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "vtlapiDynamoDataSourceServiceRoleDefaultPolicy683A31F8",
+        "Roles": [
+          {
+            "Ref": "vtlapiDynamoDataSourceServiceRole79448EEA"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/ServiceRole/DefaultPolicy/Resource"
+      }
+    },
+    "vtlapiDynamoDataSource3B06F5A1": {
+      "Type": "AWS::AppSync::DataSource",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "Name": "DynamoDataSource",
+        "Type": "AMAZON_DYNAMODB",
+        "DynamoDBConfig": {
+          "AwsRegion": {
+            "Ref": "AWS::Region"
+          },
+          "TableName": {
+            "Ref": "DynamoTable163882862"
+          }
+        },
+        "ServiceRoleArn": {
+          "Fn::GetAtt": [
+            "vtlapiDynamoDataSourceServiceRole79448EEA",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/Resource"
+      }
+    },
+    "vtlapiDynamoDataSourceMutationcreateNoteResolver8BE9E5CA": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "FieldName": "createNote",
+        "TypeName": "Mutation",
+        "DataSourceName": "DynamoDataSource",
+        "Kind": "UNIT",
+        "RequestMappingTemplate": "\n      ## Automatically set the id if it's not passed in.\n      $util.qr($context.args.put(\"id\", $util.defaultIfNull($ctx.args.id, $util.autoId())))\n      {\n        \"version\":\"2018-05-29\",\n        \"operation\": \"PutItem\",\n        \"key\": {\n          \"id\" : $util.dynamodb.toDynamoDBJson($ctx.args.id)\n        },\n        \"attributeValues\": $util.dynamodb.toMapValuesJson($context.args)\n      }\n      ",
+        "ResponseMappingTemplate": "\n      #if($context.error)\n        $util.error($context.error.message,$context.error.type)\n      #else\n        $utils.toJson($context.result)\n      #end    \n      "
+      },
+      "DependsOn": [
+        "vtlapiDynamoDataSource3B06F5A1",
+        "vtlapiSchema3D4B82EF"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/MutationcreateNoteResolver/Resource"
+      }
+    },
+    "vtlapiDynamoDataSourceQuerynotesResolver3271E8BC": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "FieldName": "notes",
+        "TypeName": "Query",
+        "DataSourceName": "DynamoDataSource",
+        "Kind": "UNIT",
+        "RequestMappingTemplate": "\n      {\n        \"version\" : \"2017-02-28\",\n        \"operation\" : \"Scan\"\n      }\n      ",
+        "ResponseMappingTemplate": "\n        #if( $context.error)\n          $util.error($context.error.message, $context.error.type)\n        #else\n          $utils.toJson($context.result.items)\n        #end\n      "
+      },
+      "DependsOn": [
+        "vtlapiDynamoDataSource3B06F5A1",
+        "vtlapiSchema3D4B82EF"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/QuerynotesResolver/Resource"
+      }
+    },
+    "vtlapiDynamoDataSourceMutationdeleteNoteResolver3CBBF458": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "FieldName": "deleteNote",
+        "TypeName": "Mutation",
+        "DataSourceName": "DynamoDataSource",
+        "Kind": "UNIT",
+        "RequestMappingTemplate": "\n      {\n        \"version\" : \"2018-05-29\",\n        \"operation\" : \"DeleteItem\",\n        \"key\" : {\n            \"id\" : $util.dynamodb.toDynamoDBJson($ctx.args.id)\n        }\n      }\n      ",
+        "ResponseMappingTemplate": "\n        #if( $context.error)\n          $util.error($context.error.message, $context.error.type)\n        #else\n          $utils.toJson($context.result)\n        #end\n      "
+      },
+      "DependsOn": [
+        "vtlapiDynamoDataSource3B06F5A1",
+        "vtlapiSchema3D4B82EF"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/MutationdeleteNoteResolver/Resource"
+      }
+    },
+    "vtlapiDynamoDataSourceMutationupdateNoteResolverB667AC67": {
+      "Type": "AWS::AppSync::Resolver",
+      "Properties": {
+        "ApiId": {
+          "Fn::GetAtt": [
+            "vtlapi061587B8",
+            "ApiId"
+          ]
+        },
+        "FieldName": "updateNote",
+        "TypeName": "Mutation",
+        "DataSourceName": "DynamoDataSource",
+        "Kind": "UNIT",
+        "RequestMappingTemplate": "\n      {\n        \"version\" : \"2018-05-29\",\n        \"operation\" : \"UpdateItem\",\n        \"key\" : {\n            \"id\" : $util.dynamodb.toDynamoDBJson($ctx.args.id)\n        },\n        \"update\" : {\n          \"expression\" : \"SET #title = :t\",\n          \"expressionNames\" : {\n            \"#title\" : \"title\"\n          },\n          \"expressionValues\" : {\n              \":t\" : $util.dynamodb.toDynamoDBJson($ctx.args.title)\n          }\n        }\n      }\n      ",
+        "ResponseMappingTemplate": "\n        #if( $context.error)\n          $util.error($context.error.message, $context.error.type)\n        #else\n          $utils.toJson($context.result)\n        #end\n      "
+      },
+      "DependsOn": [
+        "vtlapiDynamoDataSource3B06F5A1",
+        "vtlapiSchema3D4B82EF"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/MutationupdateNoteResolver/Resource"
+      }
+    },
+    "DynamoTable163882862": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "TableName": "VTl_dynamo_table"
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/DynamoTable1/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/01PQU7DMBB8C3dn21DgDGokDiAVEu5oY7vKto5tYqcosvx37CRATzM73h3P3EIo72B7g9+u4OJcKGohNB75mSXpM6C1btIcwv6onwe03fvrkyX2PzW8kz1mIekvcsqsQo+NGQcu81RLZ9RFDpER9hBqoxY545tRxOebhUUmJo29ESnFB7bL5kxizPQwejt6li2v7X/53mhBnoyOrLyHbYHKdpjaPa71NhnXSutjmHt8qdyqmv+u2qv8f+Ej00ZIOLnNpXyAcpdcT46oGEbtqZdQL/gDbUGwRVABAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "Step09AppsyncDynamodbDatasourceVtlStack/CDKMetadata/Default"
+      },
+      "Condition": "CDKMetadataAvailable"
+    }
+  },
+  "Outputs": {
+    "graphqlUrl": {
+      "Value": {
+        "Fn::GetAtt": [
+          "vtlapi061587B8",
+          "GraphQLUrl"
+        ]
+      }
+    },
+    "ApiKey": {
+      "Value": {
+        "Fn::GetAtt": [
+          "vtlapiDefaultApiKey297D6C35",
+          "ApiKey"
+        ]
+      }
+    }
+  },
+  "Conditions": {
+    "CDKMetadataAvailable": {
+      "Fn::Or": [
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "af-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ca-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-northwest-1"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-3"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "me-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "sa-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-2"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-2"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

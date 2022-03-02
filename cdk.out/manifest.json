@@ -1,0 +1,156 @@
+{
+  "version": "16.0.0",
+  "artifacts": {
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    },
+    "Step09AppsyncDynamodbDatasourceVtlStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "Step09AppsyncDynamodbDatasourceVtlStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "Step09AppsyncDynamodbDatasourceVtlStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "Step09AppsyncDynamodbDatasourceVtlStack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f2a591acd159dd16f5eb9da858edca68d992f51d1dfe4c0530db3f2130fdfe9f.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "Step09AppsyncDynamodbDatasourceVtlStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "Step09AppsyncDynamodbDatasourceVtlStack.assets"
+      ],
+      "metadata": {
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapi061587B8"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/Schema": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiSchema3D4B82EF"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DefaultApiKey": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDefaultApiKey297D6C35"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSourceServiceRole79448EEA"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSourceServiceRoleDefaultPolicy683A31F8"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSource3B06F5A1"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/MutationcreateNoteResolver/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSourceMutationcreateNoteResolver8BE9E5CA"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/QuerynotesResolver/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSourceQuerynotesResolver3271E8BC"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/MutationdeleteNoteResolver/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSourceMutationdeleteNoteResolver3CBBF458"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/vtl_api/DynamoDataSource/MutationupdateNoteResolver/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "vtlapiDynamoDataSourceMutationupdateNoteResolverB667AC67"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/graphqlUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "graphqlUrl"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/ApiKey": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiKey"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/DynamoTable1": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "DynamoTable163882862"
+            }
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/DynamoTable1/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DynamoTable163882862"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/Step09AppsyncDynamodbDatasourceVtlStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "Step09AppsyncDynamodbDatasourceVtlStack"
+    }
+  }
+}
